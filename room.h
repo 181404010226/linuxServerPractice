@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include"user.h"
+using namespace std;
 
 class Room {
 public:

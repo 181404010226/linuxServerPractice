@@ -3,6 +3,7 @@
 #include <string>
 #include "room.h"
 #include"user.h"
+using namespace std;
 
 class RoomManager {
 public:
