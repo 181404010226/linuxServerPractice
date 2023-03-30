@@ -72,6 +72,9 @@ epoll::epoll()
                     // 客户端断开连接
                     close(id);
                     epoll_ctl(epollId, EPOLL_CTL_DEL, id, 0);
+                    // 离开房间并删除用户
+                    manager.leaveRoom(AllClients[id].user);
+                    delete AllClients[id].user;
                     AllClients.erase(id);
                 }
                 else
@@ -81,14 +84,35 @@ epoll::epoll()
                     if (AllClients[id].message == "")
                     {
                         AllClients[id].message = msg;
+                        AllClients[id].user = new User(msg);
                      }
-                    else//否则是聊天消息
+                    // 未加入房间情况
+                    else if (AllClients[id].user->getRoom() == nullptr)
                     {
-                        std:: string name = AllClients[id].message;
-                        for (auto& c : AllClients)
-                            if (c.first != id)
-                                write(c.first, 
-                                    ('[' + name + ']' + ":"+ msg) .c_str(),msg.size() + name.size() + 4) ;
+                        // 创建房间
+                        if (msg.find("CreateRoom"))
+                        {
+                            Room* room1 = manager.createRoom();
+                            write(AllClients[id].clientID,
+                                manager.showRooms().c_str(), manager.showRooms().size() + 4);
+                        }
+                    }
+                    else
+                    {
+                        if (msg.find("LeaveRoom"))
+                        {                        
+                            manager.leaveRoom(AllClients[id].user);
+                            write(AllClients[id].clientID,
+                                manager.showRooms().c_str(), manager.showRooms().size() + 4);
+                        }
+                        else {
+                            //否则是聊天消息
+                            std::string name = AllClients[id].message;
+                            for (auto& c : AllClients)
+                                if (c.first != id)
+                                    write(c.first,
+                                        ('[' + name + ']' + ":" + msg).c_str(), msg.size() + name.size() + 4);
+                        }
 
                     }
                 }

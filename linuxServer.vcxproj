@@ -77,11 +77,15 @@
   <ItemGroup>
     <ClCompile Include="epoll.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="socket.cpp" />
+    <ClCompile Include="room.cpp" />
+    <ClCompile Include="RoomSystem.cpp" />
+    <ClCompile Include="RoomSystem.h" />
+    <ClCompile Include="user.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="epoll.h" />
-    <ClInclude Include="socket.h" />
+    <ClInclude Include="room.h" />
+    <ClInclude Include="user.h" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
