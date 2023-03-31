@@ -15,6 +15,7 @@ public:
     void addUser(User* user);
     void removeUser(User* user);
     std::string showUsers();
+    std::vector<User*> getUsers();
 private:
     std::string name;
     std::vector<User*> users;

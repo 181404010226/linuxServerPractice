@@ -33,3 +33,8 @@ std::string Room::showUsers() {
     return result;
 }
 
+std::vector<User*> Room::getUsers()
+{
+    return users;
+}
+

@@ -115,10 +115,16 @@ bool epoll::HandleProtocol(int sockid)
             if (rev == "")
             {
                 std::string name = AllClients[sockid].message;
-                for (auto& c : AllClients)
-                    if (c.first != sockid)
-                        write(c.first,
-                            ('[' + name + ']' + ":" + msg).c_str(), msg.size() + name.size() + 4);
+                Room* room = AllClients[sockid].user->getRoom();
+                if (room == nullptr) return true;
+                vector<User*> users = room->getUsers();
+                for (auto& c : users)
+                {
+                    // 只对同一个房间内的用户发送消息
+                    if (c->getId() != sockid)
+                    write(c->getId(),
+                        ('[' + name + ']' + ":" + msg).c_str(), msg.size() + name.size() + 4);
+                }
             }
             else
             {
@@ -127,4 +133,5 @@ bool epoll::HandleProtocol(int sockid)
             }
         }
     }
+    return true;
 }
