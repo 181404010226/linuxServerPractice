@@ -4,8 +4,9 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
-epoll::epoll()
+epoll::epoll():manager(new RoomManager())
 {
 
     //创建监听的sockeL
@@ -56,7 +57,10 @@ epoll::epoll()
                 ev_client.data.fd = client_sockfd;
                 ret = epoll_ctl(epollId, EPOLL_CTL_ADD,client_sockfd, &ev_client);
                 if(ret < 0) printf("epoll ctl error\n");
-                printf("告s正在连接...%d\n",client_addr.sin_addr.s_addr);
+                // 输出IP地址
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &(client_addr.sin_addr), ip, INET_ADDRSTRLEN);
+                printf("connecting...%s\n", ip);
                 // 保存该客户端的信息
                 Client client;
                 client.clientID = client_sockfd;
@@ -73,8 +77,12 @@ epoll::epoll()
                     close(id);
                     epoll_ctl(epollId, EPOLL_CTL_DEL, id, 0);
                     // 离开房间并删除用户
-                    manager.leaveRoom(AllClients[id].user);
-                    delete AllClients[id].user;
+                    if (AllClients[id].user != nullptr)
+                    {
+                        printf("leaving...%s\n", AllClients[id].user->getName().c_str());
+                        manager->leaveRoom(AllClients[id].user);
+                        delete AllClients[id].user;
+                    }
                     AllClients.erase(id);
                 }
                 else
@@ -92,18 +100,18 @@ epoll::epoll()
                         // 创建房间
                         if (msg.find("CreateRoom"))
                         {
-                            Room* room1 = manager.createRoom();
+                            Room* room1 = manager->createRoom();
                             write(AllClients[id].clientID,
-                                manager.showRooms().c_str(), manager.showRooms().size() + 4);
+                                manager->showRooms().c_str(), manager->showRooms().size() + 4);
                         }
                     }
                     else
                     {
                         if (msg.find("LeaveRoom"))
                         {                        
-                            manager.leaveRoom(AllClients[id].user);
+                            manager->leaveRoom(AllClients[id].user);
                             write(AllClients[id].clientID,
-                                manager.showRooms().c_str(), manager.showRooms().size() + 4);
+                                manager->showRooms().c_str(), manager->showRooms().size() + 4);
                         }
                         else {
                             //否则是聊天消息

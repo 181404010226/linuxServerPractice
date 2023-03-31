@@ -74,12 +74,15 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <RemoteLdToolExe>g++  $(RemoteRootDir)/$(RemoteProjectRelDir)/RoomManager.cpp </RemoteLdToolExe>
+  </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="epoll.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="room.cpp" />
-    <ClCompile Include="RoomSystem.cpp" />
-    <ClCompile Include="RoomSystem.h" />
+    <ClCompile Include="RoomManager.cpp" />
+    <ClCompile Include="RoomManager.h" />
     <ClCompile Include="user.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -87,7 +90,13 @@
     <ClInclude Include="room.h" />
     <ClInclude Include="user.h" />
   </ItemGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link />
+    <Link>
+      <VerboseOutput>false</VerboseOutput>
+      <ShowProgress>false</ShowProgress>
+    </Link>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>

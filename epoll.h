@@ -1,10 +1,7 @@
-#pragma once
 #include <iostream>
 #include <map>
-#include"RoomSystem.h"
+#include"RoomManager.h"
 using namespace std;
-
-
 
 struct Client
 {
@@ -16,6 +13,8 @@ struct Client
 	User* user;
 };
 
+#ifndef EPOLL_H
+#define EPOLL_H
 // ≥ı ºªØepoll
 class epoll
 {
@@ -25,6 +24,8 @@ private:
 	const int MAX_COUNT = 100;
 	int epollId;
 	map<int, Client> AllClients;
-	RoomManager manager;
+	RoomManager* manager;
 };
+
+#endif
 
