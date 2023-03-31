@@ -1,3 +1,6 @@
+#ifndef EPOLL_H
+#define EPOLL_H
+#pragma once
 #include <iostream>
 #include <map>
 #include"RoomManager.h"
@@ -12,9 +15,6 @@ struct Client
 	// 用户信息
 	User* user;
 };
-
-#ifndef EPOLL_H
-#define EPOLL_H
 // 初始化epoll
 class epoll
 {

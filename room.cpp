@@ -17,7 +17,8 @@ void Room::removeUser(User* user) {
         if (*it == user) {
             users.erase(it);
             user->setRoom(nullptr);
-            if (users.empty()) delete this;
+            // ±ê¼ÇÎª¿Õ
+            if (users.empty()) name = "";
             break;
         }
     }

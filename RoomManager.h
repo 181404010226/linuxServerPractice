@@ -1,10 +1,12 @@
+
+using namespace std;
+#ifndef ROOMMANAGER_H
+#define ROOMMANAGER_H
+#pragma once
 #include <vector>
 #include <string>
 #include "room.h"
 #include"user.h"
-using namespace std;
-#ifndef ROOMMANAGER_H
-#define ROOMMANAGER_H
 
 class RoomManager {
 public:

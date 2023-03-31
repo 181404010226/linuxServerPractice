@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <cstring>
 
 epoll::epoll():manager(new RoomManager())
 {
@@ -92,22 +93,23 @@ epoll::epoll():manager(new RoomManager())
                     if (AllClients[id].message == "")
                     {
                         AllClients[id].message = msg;
-                        AllClients[id].user = new User(msg);
+                        AllClients[id].user = new User(msg, AllClients[id].clientID);
                      }
                     // 未加入房间情况
                     else if (AllClients[id].user->getRoom() == nullptr)
                     {
                         // 创建房间
-                        if (msg.find("CreateRoom"))
+                        if (msg.find("CreateRoom")!= std::string::npos)
                         {
                             Room* room1 = manager->createRoom();
+                            manager->joinRoom(room1, AllClients[id].user);
                             write(AllClients[id].clientID,
                                 manager->showRooms().c_str(), manager->showRooms().size() + 4);
                         }
                     }
                     else
                     {
-                        if (msg.find("LeaveRoom"))
+                        if (msg.find("LeaveRoom") != std::string::npos)
                         {                        
                             manager->leaveRoom(AllClients[id].user);
                             write(AllClients[id].clientID,
@@ -124,7 +126,6 @@ epoll::epoll():manager(new RoomManager())
 
                     }
                 }
-
             }
         }
     }
