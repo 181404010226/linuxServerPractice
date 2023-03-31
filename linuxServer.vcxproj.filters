@@ -15,6 +15,9 @@
       <Filter>房间系统</Filter>
     </ClCompile>
     <ClCompile Include="epoll.cpp" />
+    <ClCompile Include="RoomProtocolHandler.cpp">
+      <Filter>房间系统</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="room.h">
@@ -24,6 +27,9 @@
       <Filter>房间系统</Filter>
     </ClInclude>
     <ClInclude Include="epoll.h" />
+    <ClInclude Include="RoomProtocolHandler.h">
+      <Filter>房间系统</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="房间系统">

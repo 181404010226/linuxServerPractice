@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include"RoomManager.h"
+#include "RoomProtocolHandler.h"
 using namespace std;
 
 struct Client
@@ -21,10 +22,14 @@ class epoll
 public:
 	epoll();
 private:
+	// 处理协议
+	bool HandleProtocol(int sockid);
+	// 最大连接数
 	const int MAX_COUNT = 100;
 	int epollId;
 	map<int, Client> AllClients;
 	RoomManager* manager;
+	RoomProtocolHandler* roomHander;
 };
 
 #endif

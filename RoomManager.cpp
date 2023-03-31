@@ -3,9 +3,18 @@
 RoomManager::RoomManager() : RoomId(1) {}
 
 Room* RoomManager::createRoom(std::string name) {
-    Room* newRoom = new Room(name+to_string(++RoomId));
+    Room* newRoom=new Room("Room" + to_string(++RoomId)+"-"+name );
     rooms.push_back(newRoom);
     return newRoom;
+}
+
+Room* RoomManager::getRoomByName(std::string name) {
+    for (auto room : rooms) {
+        if (room->getName() == name) {
+            return room;
+        }
+    }
+    return nullptr;
 }
 
 void RoomManager::joinRoom(Room* room, User* user) {
@@ -27,6 +36,8 @@ std::string RoomManager::showRooms() {
         {
             delete* it;
             rooms.erase(it);
+            // bugfix：如果删除的是最后一个房间，就会跳转到非法区域
+            if (it == rooms.end()) break;
         }
     }
     // 删除和遍历不要放到一起

@@ -1,10 +1,11 @@
+
+using namespace std;
+#ifndef ROOM_H
+#define ROOM_H
 #pragma once
 #include <vector>
 #include <string>
 #include"user.h"
-using namespace std;
-#ifndef ROOM_H
-#define ROOM_H
 
 class User;
 class Room {

@@ -7,9 +7,8 @@
 #include <arpa/inet.h>
 #include <cstring>
 
-epoll::epoll():manager(new RoomManager())
+epoll::epoll():manager(new RoomManager()), roomHander(new RoomProtocolHandler(manager))
 {
-
     //创建监听的sockeL
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) perror("socket error");
@@ -41,7 +40,6 @@ epoll::epoll():manager(new RoomManager())
             printf("epoll wait error\n");
             break;
         }
-
         for (int i = 0; i < n; i++)
         {
             int id = evs[i].data.fd;
@@ -69,66 +67,64 @@ epoll::epoll():manager(new RoomManager())
             }
             else
             {
-                char buffer[1024];
-                int n = read(id, buffer, 1024);
-                if (n < 0) break;
-                else if (n == 0)
+                if (!HandleProtocol(id))
                 {
-                    // 客户端断开连接
-                    close(id);
-                    epoll_ctl(epollId, EPOLL_CTL_DEL, id, 0);
-                    // 离开房间并删除用户
-                    if (AllClients[id].user != nullptr)
-                    {
-                        printf("leaving...%s\n", AllClients[id].user->getName().c_str());
-                        manager->leaveRoom(AllClients[id].user);
-                        delete AllClients[id].user;
-                    }
-                    AllClients.erase(id);
-                }
-                else
-                {
-                    string msg(buffer, n);
-                    // 如果该客户端name为空，说明该消息是这个客户端的用户名
-                    if (AllClients[id].message == "")
-                    {
-                        AllClients[id].message = msg;
-                        AllClients[id].user = new User(msg, AllClients[id].clientID);
-                     }
-                    // 未加入房间情况
-                    else if (AllClients[id].user->getRoom() == nullptr)
-                    {
-                        // 创建房间
-                        if (msg.find("CreateRoom")!= std::string::npos)
-                        {
-                            Room* room1 = manager->createRoom();
-                            manager->joinRoom(room1, AllClients[id].user);
-                            write(AllClients[id].clientID,
-                                manager->showRooms().c_str(), manager->showRooms().size() + 4);
-                        }
-                    }
-                    else
-                    {
-                        if (msg.find("LeaveRoom") != std::string::npos)
-                        {                        
-                            manager->leaveRoom(AllClients[id].user);
-                            write(AllClients[id].clientID,
-                                manager->showRooms().c_str(), manager->showRooms().size() + 4);
-                        }
-                        else {
-                            //否则是聊天消息
-                            std::string name = AllClients[id].message;
-                            for (auto& c : AllClients)
-                                if (c.first != id)
-                                    write(c.first,
-                                        ('[' + name + ']' + ":" + msg).c_str(), msg.size() + name.size() + 4);
-                        }
-
-                    }
+                    printf("客户端协议出错,id:%d",id);
+                    break;
                 }
             }
         }
     }
     close(epollId);
     close(sockfd);
+}
+
+bool epoll::HandleProtocol(int sockid)
+{
+    char buffer[1024];
+    int n = read(sockid, buffer, 1024);
+    if (n < 0) return false;
+    else if (n == 0)
+    {
+        // 客户端断开连接
+        close(sockid);
+        epoll_ctl(epollId, EPOLL_CTL_DEL, sockid, 0);
+        // 离开房间并删除用户
+        if (AllClients[sockid].user != nullptr)
+        {
+            printf("leaving...%s\n", AllClients[sockid].user->getName().c_str());
+            manager->leaveRoom(AllClients[sockid].user);
+            delete AllClients[sockid].user;
+        }
+        AllClients.erase(sockid);
+    }
+    else
+    {
+        string msg(buffer, n);
+        // 如果该客户端name为空，说明该消息是这个客户端的用户名
+        if (AllClients[sockid].message == "")
+        {
+            AllClients[sockid].message = msg;
+            AllClients[sockid].user = new User(msg, AllClients[sockid].clientID);
+        }
+        // 登录后处理相关协议
+        else
+        {
+            string rev = roomHander->handleProtocol(msg, AllClients[sockid].user);
+            // 为空情况代表没有找到合法指令
+            if (rev == "")
+            {
+                std::string name = AllClients[sockid].message;
+                for (auto& c : AllClients)
+                    if (c.first != sockid)
+                        write(c.first,
+                            ('[' + name + ']' + ":" + msg).c_str(), msg.size() + name.size() + 4);
+            }
+            else
+            {
+                write(AllClients[sockid].clientID,
+                    rev.c_str(), rev.size() + 4);
+            }
+        }
+    }
 }

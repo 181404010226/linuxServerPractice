@@ -83,11 +83,13 @@
     <ClCompile Include="room.cpp" />
     <ClCompile Include="RoomManager.cpp" />
     <ClCompile Include="RoomManager.h" />
+    <ClCompile Include="RoomProtocolHandler.cpp" />
     <ClCompile Include="user.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="epoll.h" />
     <ClInclude Include="room.h" />
+    <ClInclude Include="RoomProtocolHandler.h" />
     <ClInclude Include="user.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
