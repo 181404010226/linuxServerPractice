@@ -64,6 +64,7 @@ epoll::epoll():manager(new RoomManager()), roomHander(new RoomProtocolHandler(ma
                 Client client;
                 client.clientID = client_sockfd;
                 AllClients[client_sockfd] = client;
+                AllClients[client_sockfd].user = nullptr;
             }
             else
             {
