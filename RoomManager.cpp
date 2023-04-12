@@ -1,4 +1,5 @@
 #include"RoomManager.h"
+#include <unistd.h>
 
 RoomManager::RoomManager() : RoomId(1) {}
 
@@ -19,12 +20,32 @@ Room* RoomManager::getRoomByName(std::string name) {
 
 void RoomManager::joinRoom(Room* room, User* user) {
     room->addUser(user);
+    // 当玩家加入房间时通知房间内其他玩家刷新房间
+    for (auto otherUser : room->getUsers())
+    {
+        if (otherUser->getId() != user->getId())
+        {
+            string temp = showRooms();
+            write(otherUser->getId(),
+                temp.c_str(), temp.size() + 4);
+        }
+    }
 }
 
 void RoomManager::leaveRoom(User* user) {
     Room* room = user->getRoom();
     if (room) {
         room->removeUser(user);
+        // 当玩家离开房间时通知房间内其他玩家刷新房间
+        for (auto otherUser : room->getUsers())
+        {
+            if (otherUser->getId() != user->getId())
+            {
+                string temp = showRooms();
+                write(otherUser->getId(),
+                    temp.c_str(), temp.size() + 4);
+            }
+        }
     }
 }
 
