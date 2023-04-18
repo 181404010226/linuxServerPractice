@@ -84,6 +84,7 @@ bool epoll::HandleProtocol(int sockid)
 {
     char buffer[1024];
     int n = read(sockid, buffer, 1024);
+
     if (n < 0) return false;
     else if (n == 0)
     {
@@ -101,38 +102,50 @@ bool epoll::HandleProtocol(int sockid)
     }
     else
     {
-        string msg(buffer, n);
-        // 如果该客户端name为空，说明该消息是这个客户端的用户名
-        if (AllClients[sockid].message == "")
+        string originMsg(buffer, n);
+
+        // Split the buffer by the delimiter to get individual messages
+        size_t pos = originMsg.find("|");
+        while (pos != string::npos)
         {
-            AllClients[sockid].message = msg;
-            AllClients[sockid].user = new User(msg, AllClients[sockid].clientID);
-        }
-        // 登录后处理相关协议
-        else
-        {
-            string rev = roomHander->handleProtocol(msg, AllClients[sockid].user);
-            // 为空情况代表没有找到合法指令
-            if (rev == "")
+            // 解决粘包问题
+            string newMsg = originMsg.substr(0, pos);
+            originMsg.erase(0, pos + 1);
+            pos = originMsg.find("|");
+            // 如果该客户端name为空，说明该消息是这个客户端的用户名
+            if (AllClients[sockid].message == "")
             {
-                std::string name = AllClients[sockid].message;
-                Room* room = AllClients[sockid].user->getRoom();
-                if (room == nullptr) return true;
-                vector<User*> users = room->getUsers();
-                for (auto& c : users)
-                {
-                    // 只对同一个房间内的用户发送消息
-                    if (c->getId() != sockid)
-                    write(c->getId(),
-                        ('[' + name + ']' + ":" + msg).c_str(), msg.size() + name.size() + 4);
-                }
+                AllClients[sockid].message = newMsg;
+                AllClients[sockid].user = new User(newMsg, AllClients[sockid].clientID);
             }
+            // 登录后处理相关协议
             else
             {
-                write(AllClients[sockid].clientID,
-                    rev.c_str(), rev.size() + 4);
+                string rev = roomHander->handleProtocol(newMsg, AllClients[sockid].user);
+                // 为空情况代表没有找到合法指令
+                if (rev == "")
+                {
+                    std::string name = AllClients[sockid].message;
+                    Room* room = AllClients[sockid].user->getRoom();
+                    if (room == nullptr) return true;
+                    vector<User*> users = room->getUsers();
+                    for (auto& c : users)
+                    {
+                        // 只对同一个房间内的用户发送消息
+                        if (c->getId() != sockid)
+                            write(c->getId(),
+                                ('[' + name + ']' + ":" + newMsg).c_str(), newMsg.size() + name.size() + 4);
+                    }
+                }
+                else
+                {
+                    write(AllClients[sockid].clientID,
+                        rev.c_str(), rev.size() + 4);
+                }
             }
         }
+
+        
     }
     return true;
 }

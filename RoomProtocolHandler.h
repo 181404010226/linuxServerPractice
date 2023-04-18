@@ -7,6 +7,7 @@
 
 class RoomProtocolHandler {
 public:
+    const int Max_Room_users = 2;
     RoomProtocolHandler(RoomManager* roomManager);
     std::string handleProtocol(std::string protocol, User* user);
 

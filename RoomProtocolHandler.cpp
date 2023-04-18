@@ -44,8 +44,13 @@ std::string RoomProtocolHandler::handleProtocol(std::string protocol,User* user)
                 }
                 else
                 {
-                    roomManager->joinRoom(room, user);
-                    response = "User " + user->getName() + " joined room " + room->getName();
+                    // 判断房间人数是否超限
+                    if (room->getUsers().size() < 2)
+                    {
+                        roomManager->joinRoom(room, user);
+                        response = "User " + user->getName() + " joined room " + room->getName();
+                    }
+                    else response = "room users full up: " + room->getName();
                 }
             }
         }
