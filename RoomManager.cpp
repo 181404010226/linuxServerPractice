@@ -1,4 +1,4 @@
-#include"RoomManager.h"
+ï»¿#include"RoomManager.h"
 #include <unistd.h>
 
 RoomManager::RoomManager() : RoomId(1) {}
@@ -20,7 +20,7 @@ Room* RoomManager::getRoomByName(std::string name) {
 
 void RoomManager::joinRoom(Room* room, User* user) {
     room->addUser(user);
-    // µ±Íæ¼Ò¼ÓÈë·¿¼äÊ±Í¨Öª·¿¼äÄÚÆäËûÍæ¼ÒË¢ÐÂ·¿¼ä
+    // å½“çŽ©å®¶åŠ å…¥æˆ¿é—´æ—¶é€šçŸ¥æˆ¿é—´å†…å…¶ä»–çŽ©å®¶åˆ·æ–°æˆ¿é—´
     for (auto otherUser : room->getUsers())
     {
         if (otherUser->getId() != user->getId())
@@ -36,7 +36,7 @@ void RoomManager::leaveRoom(User* user) {
     Room* room = user->getRoom();
     if (room) {
         room->removeUser(user);
-        // µ±Íæ¼ÒÀë¿ª·¿¼äÊ±Í¨Öª·¿¼äÄÚÆäËûÍæ¼ÒË¢ÐÂ·¿¼ä
+        // å½“çŽ©å®¶ç¦»å¼€æˆ¿é—´æ—¶é€šçŸ¥æˆ¿é—´å†…å…¶ä»–çŽ©å®¶åˆ·æ–°æˆ¿é—´
         for (auto otherUser : room->getUsers())
         {
             if (otherUser->getId() != user->getId())
@@ -52,16 +52,16 @@ void RoomManager::leaveRoom(User* user) {
 std::string RoomManager::showRooms() {
     std::string result;
     for (auto it = rooms.begin(); it != rooms.end(); it++) {
-        // ·¿¼äÃû±»±ê¼ÇÎª¿ÕÊ±£¬Ö¤Ã÷Õâ¸ö·¿¼ä²»ÔÙÐèÒª
+        // æˆ¿é—´åè¢«æ ‡è®°ä¸ºç©ºæ—¶ï¼Œè¯æ˜Žè¿™ä¸ªæˆ¿é—´ä¸å†éœ€è¦
         if ((*it)->getName() == "")
         {
             delete* it;
             rooms.erase(it);
-            // bugfix£ºÈç¹ûÉ¾³ýµÄÊÇ×îºóÒ»¸ö·¿¼ä£¬¾Í»áÌø×ªµ½·Ç·¨ÇøÓò
+            // bugfixï¼šå¦‚æžœåˆ é™¤çš„æ˜¯æœ€åŽä¸€ä¸ªæˆ¿é—´ï¼Œå°±ä¼šè·³è½¬åˆ°éžæ³•åŒºåŸŸ
             if (it == rooms.end()) break;
         }
     }
-    // É¾³ýºÍ±éÀú²»Òª·Åµ½Ò»Æð
+    // åˆ é™¤å’ŒéåŽ†ä¸è¦æ”¾åˆ°ä¸€èµ·
     for (auto it = rooms.begin(); it != rooms.end(); it++) {
         result += (*it)->getName() + ": " + (*it)->showUsers() + "\n";
     }

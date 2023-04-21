@@ -1,4 +1,4 @@
-#include "epoll.h"
+ï»¿#include "epoll.h"
 #include <cstdio>
 #include <sys/socket.h>
 #include <sys/epoll.h>
@@ -9,10 +9,10 @@
 
 epoll::epoll():manager(new RoomManager()), roomHander(new RoomProtocolHandler(manager))
 {
-    //´´½¨¼àÌıµÄsockeL
+    //åˆ›å»ºç›‘å¬çš„sockeL
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) perror("socket error");
-    // °ó¶¨±¾µØipºÍ¶Ë¿Ú
+    // ç»‘å®šæœ¬åœ°ipå’Œç«¯å£
     struct sockaddr_in addr;
     addr.sin_family=AF_INET;
     addr.sin_addr.s_addr=htonl(INADDR_ANY);
@@ -21,16 +21,16 @@ epoll::epoll():manager(new RoomManager()), roomHander(new RoomProtocolHandler(ma
     epollId = epoll_create1(0);
     int ret = bind(sockfd, (struct sockaddr*)&addr, sizeof(addr));
     if (sockfd < 0) printf("bind error \n");
-    // ¼àÌı¿Í»§¶Ë
+    // ç›‘å¬å®¢æˆ·ç«¯
     ret=listen(sockfd, 1024);
     if (ret < 0) printf("listen error \n");
-    //½«¼àÌıµÄsocket¼ÓÈëepoll
+    //å°†ç›‘å¬çš„socketåŠ å…¥epoll
     struct epoll_event ev;
     ev.events = EPOLLIN;
     ev.data.fd = sockfd;
     ret = epoll_ctl(epollId, EPOLL_CTL_ADD, sockfd, &ev);
     if (ret < 0) printf("epoll_ ctl error\n");
-    //Ñ­»·¼àÌı
+    //å¾ªç¯ç›‘å¬
     while (1)
     {
         struct epoll_event evs[MAX_COUNT];
@@ -43,24 +43,24 @@ epoll::epoll():manager(new RoomManager()), roomHander(new RoomProtocolHandler(ma
         for (int i = 0; i < n; i++)
         {
             int id = evs[i].data.fd;
-            //Èç¹ûÊÇ¼àÌıµÄfdÊÕµ½ÏûÏ¢£¬ÄÇÃ´Ôò±íÊ¾ÓĞ¿Í»§¶Ë½øĞĞÁ¬½ÓÁË
+            //å¦‚æœæ˜¯ç›‘å¬çš„fdæ”¶åˆ°æ¶ˆæ¯ï¼Œé‚£ä¹ˆåˆ™è¡¨ç¤ºæœ‰å®¢æˆ·ç«¯è¿›è¡Œè¿æ¥äº†
             if (id == sockfd)
             {
                 struct sockaddr_in client_addr;
                 socklen_t client_addr_len = sizeof(client_addr);
                 int client_sockfd=accept(sockfd, (struct sockaddr*)&client_addr, &client_addr_len);
-                // ½«¿Í»§¶ËµÄsccket¼ÓÈëepoll
+                // å°†å®¢æˆ·ç«¯çš„sccketåŠ å…¥epoll
                 struct epoll_event ev_client;
                 ev_client.events=EPOLLIN; 
-                //¼ì²â¿Í»§¶ËÓĞÃ»ÓĞÏûÏ¢¹ıÀ´
+                //æ£€æµ‹å®¢æˆ·ç«¯æœ‰æ²¡æœ‰æ¶ˆæ¯è¿‡æ¥
                 ev_client.data.fd = client_sockfd;
                 ret = epoll_ctl(epollId, EPOLL_CTL_ADD,client_sockfd, &ev_client);
                 if(ret < 0) printf("epoll ctl error\n");
-                // Êä³öIPµØÖ·
+                // è¾“å‡ºIPåœ°å€
                 char ip[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, &(client_addr.sin_addr), ip, INET_ADDRSTRLEN);
                 printf("connecting...%s\n", ip);
-                // ±£´æ¸Ã¿Í»§¶ËµÄĞÅÏ¢
+                // ä¿å­˜è¯¥å®¢æˆ·ç«¯çš„ä¿¡æ¯
                 Client client;
                 client.clientID = client_sockfd;
                 AllClients[client_sockfd] = client;
@@ -70,7 +70,7 @@ epoll::epoll():manager(new RoomManager()), roomHander(new RoomProtocolHandler(ma
             {
                 if (!HandleProtocol(id))
                 {
-                    printf("¿Í»§¶ËĞ­Òé³ö´í,id:%d",id);
+                    printf("å®¢æˆ·ç«¯åè®®å‡ºé”™,id:%d",id);
                     break;
                 }
             }
@@ -88,10 +88,10 @@ bool epoll::HandleProtocol(int sockid)
     if (n < 0) return false;
     else if (n == 0)
     {
-        // ¿Í»§¶Ë¶Ï¿ªÁ¬½Ó
+        // å®¢æˆ·ç«¯æ–­å¼€è¿æ¥
         close(sockid);
         epoll_ctl(epollId, EPOLL_CTL_DEL, sockid, 0);
-        // Àë¿ª·¿¼ä²¢É¾³ıÓÃ»§
+        // ç¦»å¼€æˆ¿é—´å¹¶åˆ é™¤ç”¨æˆ·
         if (AllClients[sockid].user != nullptr)
         {
             printf("leaving...%s\n", AllClients[sockid].user->getName().c_str());
@@ -108,21 +108,22 @@ bool epoll::HandleProtocol(int sockid)
         size_t pos = originMsg.find("|");
         while (pos != string::npos)
         {
-            // ½â¾öÕ³°üÎÊÌâ
+            // è§£å†³ç²˜åŒ…é—®é¢˜
             string newMsg = originMsg.substr(0, pos);
             originMsg.erase(0, pos + 1);
             pos = originMsg.find("|");
-            // Èç¹û¸Ã¿Í»§¶ËnameÎª¿Õ£¬ËµÃ÷¸ÃÏûÏ¢ÊÇÕâ¸ö¿Í»§¶ËµÄÓÃ»§Ãû
+            // å¦‚æœè¯¥å®¢æˆ·ç«¯nameä¸ºç©ºï¼Œè¯´æ˜è¯¥æ¶ˆæ¯æ˜¯è¿™ä¸ªå®¢æˆ·ç«¯çš„ç”¨æˆ·å
             if (AllClients[sockid].message == "")
             {
                 AllClients[sockid].message = newMsg;
                 AllClients[sockid].user = new User(newMsg, AllClients[sockid].clientID);
             }
-            // µÇÂ¼ºó´¦ÀíÏà¹ØĞ­Òé
+            // ç™»å½•åå¤„ç†ç›¸å…³åè®®
             else
             {
                 string rev = roomHander->handleProtocol(newMsg, AllClients[sockid].user);
-                // Îª¿ÕÇé¿ö´ú±íÃ»ÓĞÕÒµ½ºÏ·¨Ö¸Áî
+                // ä¸ºç©ºæƒ…å†µä»£è¡¨æ²¡æœ‰æ‰¾åˆ°åˆæ³•æŒ‡ä»¤
+
                 if (rev == "")
                 {
                     std::string name = AllClients[sockid].message;
@@ -131,21 +132,21 @@ bool epoll::HandleProtocol(int sockid)
                     vector<User*> users = room->getUsers();
                     for (auto& c : users)
                     {
-                        // Ö»¶ÔÍ¬Ò»¸ö·¿¼äÄÚµÄÓÃ»§·¢ËÍÏûÏ¢
+                        // åªå¯¹åŒä¸€ä¸ªæˆ¿é—´å†…çš„ç”¨æˆ·å‘é€æ¶ˆæ¯
                         if (c->getId() != sockid)
-                            write(c->getId(),
-                                ('[' + name + ']' + ":" + newMsg).c_str(), newMsg.size() + name.size() + 4);
+                        {
+                            int sendSize=send(c->getId(),
+                                ('[' + name + ']' + ":" + newMsg).c_str(), newMsg.size() + name.size() + 4, 0);
+                            printf("%s %d\n", ('[' + name + ']' + ":" + newMsg).c_str(), sendSize);
+                        }
                     }
                 }
                 else
                 {
-                    write(AllClients[sockid].clientID,
-                        rev.c_str(), rev.size() + 4);
+                    send(AllClients[sockid].clientID, rev.c_str(), rev.size() + 4,0);
                 }
             }
         }
-
-        
     }
     return true;
 }

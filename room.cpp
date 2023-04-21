@@ -1,4 +1,4 @@
-#include "room.h"
+ï»¿#include "room.h"
 
 
 Room::Room(std::string name) : name(name) {}
@@ -17,7 +17,7 @@ void Room::removeUser(User* user) {
         if (*it == user) {
             users.erase(it);
             user->setRoom(nullptr);
-            // ±ê¼ÇÎª¿Õ
+            // æ ‡è®°ä¸ºç©º
             if (users.empty()) name = "";
             break;
         }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include <string>
 #include "room.h"
@@ -6,7 +6,6 @@
 using namespace std;
 #ifndef ROOMMANAGER_H
 #define ROOMMANAGER_H
-
 
 class RoomManager {
 public:
